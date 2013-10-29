@@ -1,0 +1,66 @@
+import java.io.IOException;
+
+import org.jsoup.nodes.Document;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import java.net.*;
+
+public class Parser {
+
+
+   
+    
+    public String retrievePage(String search){
+        String baseAddress="http://www.sears.com";
+        String searching="/search=";
+        String searchTerm=search.replace(" ","%20");
+        String destination=baseAddress+searching+searchTerm;
+        Document doc=null;
+        
+        try{
+                String holder="";
+                while(holder.indexOf("productCount = ") == -1){
+        		doc=Jsoup.connect(destination).get();
+                        holder=doc.toString();
+        		int start=holder.indexOf("/search");
+                	int ending=holder.indexOf(";",start);
+                        if(start>=0){
+                        String newUrl=holder.substring(start,ending-1);
+                        destination=baseAddress+newUrl.replace(" ","%20");
+                        }
+		}
+           
+                
+        } catch (IOException e){
+                System.out.println("Error in opening URL");
+                System.exit(0);
+        }
+        System.out.println(doc.toString());
+        return doc.toString();
+     }
+
+    public String getNumProducts(String html){
+        Document doc=Jsoup.parse(html);
+        Elements products=doc.select("script");
+        for(Element text :products){
+            String value=text.toString();
+            int start=value.indexOf("productCount = ");
+            int ending=value.indexOf(",",start);
+            if(value.indexOf("productCount = ")!=-1){
+                System.out.println(value.substring(start+16,ending-1));
+            }
+            
+        }
+        return "hey";
+        
+	}
+
+
+    public static void main(String[] args){
+        Parser hey=new Parser();
+        hey.getNumProducts(hey.retrievePage(args[0]));
+
+    }
+}
+
